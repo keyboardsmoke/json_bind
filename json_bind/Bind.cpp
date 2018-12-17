@@ -51,167 +51,63 @@ double BoundDouble::GetValue()
 	return m_value.asDouble();
 }
 
-void BoundString::InitializeForObject(BoundElement* parent)
+template<typename T>
+static void InitializeForObjectGeneric(T* object, BoundElement* parent, Json::ValueType type)
 {
-	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
+	Json::Value value = parent->GetJsonObject().get(object->GetName(), Json::Value::null);
 	if (value == Json::Value::null)
 	{
 		if (BoundObject* objectParent = dynamic_cast<BoundObject*>(parent))
 		{
 			if (objectParent->RequiresAllFields())
-				throw BoundElementDoesNotExist(m_name, this->GetName());
+				throw BoundElementDoesNotExist(parent->GetName(), object->GetName());
 			else
-				SetJsonObject(value);
+				object->SetJsonObject(value);
 		}
 		else
 		{
-			SetJsonObject(value);
+			object->SetJsonObject(value);
 		}
 	}
-	else if (value.type() != Json::stringValue)
+	else if (value.type() != type)
 	{
-		throw BoundElementInvalidType(m_name, this->GetName(), ValueTypeToString(Json::stringValue), ValueTypeToString(value.type()));
+		throw BoundElementInvalidType(parent->GetName(), object->GetName(), ValueTypeToString(type), ValueTypeToString(value.type()));
 	}
 	else
 	{
-		SetJsonObject(value);
+		object->SetJsonObject(value);
 	}
+}
+
+void BoundString::InitializeForObject(BoundElement* parent)
+{
+	InitializeForObjectGeneric<BoundString>(this, parent, Json::stringValue);
 }
 
 void BoundBoolean::InitializeForObject(BoundElement* parent)
 {
-	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
-	if (value == Json::Value::null)
-	{
-		if (BoundObject* objectParent = dynamic_cast<BoundObject*>(parent))
-		{
-			if (objectParent->RequiresAllFields())
-				throw BoundElementDoesNotExist(m_name, this->GetName());
-			else
-				SetJsonObject(value);
-		}
-		else
-		{
-			SetJsonObject(value);
-		}
-	}
-	else if (value.type() != Json::booleanValue)
-	{
-		throw BoundElementInvalidType(m_name, this->GetName(), ValueTypeToString(Json::booleanValue), ValueTypeToString(value.type()));
-	}
-	else
-	{
-		SetJsonObject(value);
-	}
+	InitializeForObjectGeneric<BoundBoolean>(this, parent, Json::booleanValue);
 }
 
 void BoundInteger::InitializeForObject(BoundElement* parent)
 {
-	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
-	if (value == Json::Value::null)
-	{
-		if (BoundObject* objectParent = dynamic_cast<BoundObject*>(parent))
-		{
-			if (objectParent->RequiresAllFields())
-				throw BoundElementDoesNotExist(m_name, this->GetName());
-			else
-				SetJsonObject(value);
-		}
-		else
-		{
-			SetJsonObject(value);
-		}
-	}
-	else if (value.type() != Json::intValue)
-	{
-		throw BoundElementInvalidType(m_name, this->GetName(), ValueTypeToString(Json::intValue), ValueTypeToString(value.type()));
-	}
-	else
-	{
-		SetJsonObject(value);
-	}
+	InitializeForObjectGeneric<BoundInteger>(this, parent, Json::intValue);
 }
 
 void BoundUnsignedInteger::InitializeForObject(BoundElement* parent)
 {
-	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
-	if (value == Json::Value::null)
-	{
-		if (BoundObject* objectParent = dynamic_cast<BoundObject*>(parent))
-		{
-			if (objectParent->RequiresAllFields())
-				throw BoundElementDoesNotExist(m_name, this->GetName());
-			else
-				SetJsonObject(value);
-		}
-		else
-		{
-			SetJsonObject(value);
-		}
-	}
-	else if (value.type() != Json::uintValue)
-	{
-		throw BoundElementInvalidType(m_name, this->GetName(), ValueTypeToString(Json::uintValue), ValueTypeToString(value.type()));
-	}
-	else
-	{
-		SetJsonObject(value);
-	}
+	InitializeForObjectGeneric<BoundUnsignedInteger>(this, parent, Json::uintValue);
 }
 
 void BoundDouble::InitializeForObject(BoundElement* parent)
 {
-	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
-	if (value == Json::Value::null)
-	{
-		if (BoundObject* objectParent = dynamic_cast<BoundObject*>(parent))
-		{
-			if (objectParent->RequiresAllFields())
-				throw BoundElementDoesNotExist(m_name, this->GetName());
-			else
-				SetJsonObject(value);
-		}
-		else
-		{
-			SetJsonObject(value);
-		}
-	}
-	else if (value.type() != Json::realValue)
-	{
-		throw BoundElementInvalidType(m_name, this->GetName(), ValueTypeToString(Json::realValue), ValueTypeToString(value.type()));
-	}
-	else
-	{
-		SetJsonObject(value);
-	}
+	InitializeForObjectGeneric<BoundDouble>(this, parent, Json::realValue);
 }
 
 void BoundObject::InitializeForObject(BoundElement* parent)
 {
-	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
-	if (value == Json::Value::null)
-	{
-		if (BoundObject* objectParent = dynamic_cast<BoundObject*>(parent))
-		{
-			if (objectParent->RequiresAllFields())
-				throw BoundElementDoesNotExist(m_name, this->GetName());
-			else
-				SetJsonObject(value);
-		}
-		else
-		{
-			SetJsonObject(value);
-		}
-	}
-	else if (value.type() != Json::objectValue)
-	{
-		throw BoundElementInvalidType(m_name, this->GetName(), ValueTypeToString(Json::objectValue), ValueTypeToString(value.type()));
-	}
-	else
-	{
-		SetJsonObject(value);
-		Initialize();
-	}
+	InitializeForObjectGeneric<BoundObject>(this, parent, Json::objectValue);
+	Initialize();
 }
 
 void BoundObject::Initialize()
