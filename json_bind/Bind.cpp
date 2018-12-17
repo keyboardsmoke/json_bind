@@ -51,27 +51,6 @@ double BoundDouble::GetValue()
 	return m_value.asDouble();
 }
 
-template<typename T>
-static void CheckAndSetArrayValue(BoundObject* parent, Json::Value& root, Json::Value& setValue, BoundArray<T>* ba, bool requireAllFields)
-{
-	Json::Value value = root.get(ba->GetName(), Json::Value::null);
-	if (value == Json::Value::null)
-	{
-		if (requireAllFields)
-			throw BoundElementDoesNotExist(parent->GetName(), ba->GetName());
-	}
-	else if (value.type() != Json::arrayValue || value.isArray() == false)
-	{
-		throw BoundElementInvalidType(parent->GetName(), ba->GetName(), ValueTypeToString(Json::arrayValue), ValueTypeToString(value.type()));
-	}
-	else
-	{
-		setValue = value;
-
-		// Now that we have the value we have to initialize the array as well...
-	}
-}
-
 void BoundString::InitializeForObject(BoundElement* parent)
 {
 	Json::Value value = parent->GetJsonObject().get(this->GetName(), Json::Value::null);
